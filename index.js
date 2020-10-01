@@ -10,15 +10,21 @@ dotenv.config()
 const PORT = process.env.PORT || 3000
 const pass = process.env.KEY
 const server = createServer(requestHandler)
-const uri = `mongodb+srv://Node:${pass}@cluster0-ttfss.mongodb.net/war-codes-js?retryWrites=true&w=majority`
+const uri = `mongodb+srv://Node:${pass}@cluster0-ttfss.mongodb.net/pacer?retryWrites=true&w=majority`
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 
 async function requestHandler(req, resp) {
-  const cookies = new Cookies(req, resp)
-
   let { url } = req
+  const cookies = new Cookies(req, resp)
+  resp.setHeader('Content-Type', 'text/html')
+
   if (url.startsWith('/api/')) {
     url = url.slice(5)
+  } else if (url == "/reg") {
+    const result = await getCandidate(cookies, true)
+      ? await getPage("Pacer - Регистрация", buildPath("reg.html"), "reg")
+      : `<script>location.href = '/dashboard'</script>`
+    resp.end(result)
   } else {
     let path = process.cwd() + '/public' + url.replace(/\/$/, '')
 
@@ -28,10 +34,10 @@ async function requestHandler(req, resp) {
       const match = path.match(/\.(\w+)$/), ext = match ? match[1] : 'html'
 
       if (path.endsWith("/public/index.html")) {
-        const [file] = await Promise.all([fsp.readFile(path)])
-        const html = buildPage("Pacer", file.toString(), "main")
-        resp.setHeader('Content-Type', 'text/html')
-        resp.end(html)
+        const result = await getCandidate(cookies, true)
+          ? await getPage("Pacer - Главная", buildPath("index.html"), "main")
+          : `<script>location.href = '/dashboard'</script>`
+        resp.end(result)
       } else {
         fs.createReadStream(path).pipe(resp)
         resp.setHeader('Content-Type', {
@@ -47,9 +53,25 @@ async function requestHandler(req, resp) {
         }[ext])
       }
     } catch {
-      resp.end('"... sorry, ' + url + ' is not available"')
+      resp.end(await getPage("Pacer - Ошибка №404", buildPath("errors/404.html")))
     }
   }
+}
+
+async function getCandidate(cookies, needCheck) {
+  const token = cookies.get("token")
+  const candidate = await users.findOne({ token })
+  return needCheck ? candidate ? false : true : candidate
+}
+
+function buildPath(path) {
+  return `${__dirname}/public/${path}`
+}
+
+async function getPage(title, path, scriptName) {
+  const [file] = await Promise.all([fsp.readFile(path)])
+  const html = buildPage(title, file.toString(), scriptName)
+  return html
 }
 
 function streamToString(stream) {
@@ -76,7 +98,9 @@ function buildPage(title, body, scriptName) {
     <body>
       ${body}
 
-      <script src="/js/${scriptName}.js"></script>
+      <script src="/js/redirect-btn.js"></script>
+      <script src="/js/Alert.js"></script>
+      ${scriptName ? `<script src="/js/${scriptName}.js"></script>` : ''}
     </body>
     </html>
   `
@@ -92,9 +116,7 @@ function generateToken() {
 client.connect(err => {
   if (err) console.log(err)
 
-  global.users = client.db("war-codes-js").collection("users")
-  global.articles = client.db("war-codes-js").collection("articles")
-  global.answers = client.db("war-codes-js").collection("answers")
+  global.users = client.db("pacer").collection("users")
 
   server.listen(PORT, () => console.log('Server started at http://localhost:3000'))
   setTimeout(() => client.close(), 1e9)

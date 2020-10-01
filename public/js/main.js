@@ -7,12 +7,6 @@ onkeydown = e => {
 }
 
 onload = () => {
-  const allButtons = document.querySelectorAll("button")
-  allButtons.forEach(btn => {
-    const redirectAttr = btn.getAttribute("redirect")
-    if (redirectAttr) btn.addEventListener("click", () => location.href = redirectAttr)
-  })
-
   loader.classList.add("loaded")
   setTimeout(() => {
     header.classList.add("show")
