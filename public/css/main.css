@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Roboto:wght@300;400;700&display=swap');
+
+* {
+  font-family: Lato, Roboto, sans-serif;
+}
+
+#header {
+  height: 60vh;
+  background: #fcfcfc;
+  border-bottom: 1px solid #bfbfbf;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(-65vh);
+  transition: 1.3s;
+}
+
+#header.show {
+  transform: translateY(0);
+}
+
+#header .title {
+  font-size: 50px;
+  font-weight: bold;
+  opacity: 0;
+  transform: translateY(90%);
+  transition: 1.3s;
+}
+
+#header .title.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#header .title.end {
+  font-size: 60px;
+}
+
+#header .title.end .text-muted {
+  font-size: 40px;
+}
+
+#header .title .text-muted {
+  font-weight: normal;
+  font-size: 30px;
+  transition: 1.3s;
+}
+
+#header #desc {
+  max-width: 62%;
+  text-align: center;
+  transition: 1.3s;
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+#header #desc.show {
+  opacity: 1;
+  transform: translateY(0);
+}

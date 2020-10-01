@@ -29,7 +29,7 @@ async function requestHandler(req, resp) {
 
       if (path.endsWith("/public/index.html")) {
         const [file] = await Promise.all([fsp.readFile(path)])
-        const html = buildPage("Pacer", file.toString())
+        const html = buildPage("Pacer", file.toString(), "main")
         resp.setHeader('Content-Type', 'text/html')
         resp.end(html)
       } else {
@@ -61,7 +61,7 @@ function streamToString(stream) {
   })
 }
 
-function buildPage(title, body) {
+function buildPage(title, body, scriptName) {
   return /*html*/`
     <!DOCTYPE html>
     <html lang="ru">
@@ -75,6 +75,8 @@ function buildPage(title, body) {
     </head>
     <body>
       ${body}
+
+      <script src="/js/${scriptName}.js"></script>
     </body>
     </html>
   `
