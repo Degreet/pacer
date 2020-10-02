@@ -7,22 +7,24 @@ onkeydown = e => {
 }
 
 onload = () => {
-  loader.classList.add("loaded")
   setTimeout(() => {
-    header.classList.add("show")
-    header.ontransitionend = () => {
-      setTimeout(() => {
-        title.classList.add("show")
-        title.ontransitionend = () => {
-          title.classList.add("end")
+    loader.classList.add("loaded")
+    setTimeout(() => {
+      header.classList.add("show")
+      header.ontransitionend = () => {
+        setTimeout(() => {
+          title.classList.add("show")
           title.ontransitionend = () => {
-            desc.classList.add("show")
-            desc.ontransitionend = () => {
-              btns.classList.add("show")
+            title.classList.add("end")
+            title.ontransitionend = () => {
+              desc.classList.add("show")
+              desc.ontransitionend = () => {
+                btns.classList.add("show")
+              }
             }
           }
-        }
-      })
-    }
+        })
+      }
+    }, 1000)
   }, 1000)
 }

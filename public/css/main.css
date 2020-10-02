@@ -10,14 +10,14 @@ body {
 }
 
 #header {
-  height: 65vh;
-  background: #fcfcfc;
+  height: 100vh;
+  background: #fafafa;
   border-bottom: 1px solid #bfbfbf;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  transform: translateY(-65vh);
+  transform: translateY(-100vh);
   transition: 1.3s;
 }
 
@@ -89,6 +89,7 @@ body {
 
 #loader.loaded {
   transform: translateX(-100%);
+  z-index: -999;
 }
 
 #error {
