@@ -48,6 +48,29 @@ async function requestHandler(req, resp) {
       }
 
       resp.end(JSON.stringify(data))
+    } else if (url == "auth") {
+      const user = JSON.parse(await streamToString(req))
+      let candidate = await users.findOne({ login: user.login })
+      !candidate ? candidate = await users.findOne({ email: user.email }) : ""
+      const data = {}
+
+      if (candidate) {
+        const check = bcrypt.compareSync(user.pass, candidate.pass)
+        if (check) {
+          const token = generateToken()
+          await users.updateOne({ login: user.login }, { $set: { token } })
+          cookies.set("token", token)
+          data.success = true
+        } else {
+          data.success = false
+          data.msg = `Вы ввели неверный пароль`
+        }
+      } else {
+        data.success = false
+        data.msg = `Вы ввели неверный логин`
+      }
+
+      resp.end(JSON.stringify(data))
     } else if (url == "logout") {
       cookies.set("token", null)
       resp.end()
@@ -55,6 +78,11 @@ async function requestHandler(req, resp) {
   } else if (url == "/reg") {
     const result = await getCandidate(cookies, true)
       ? await getPage("Pacer - Регистрация", buildPath("reg.html"), "reg")
+      : `<script>location.href = '/dashboard'</script>`
+    resp.end(result)
+  } else if (url == "/auth") {
+    const result = await getCandidate(cookies, true)
+      ? await getPage("Pacer - Авторизация", buildPath("auth.html"), "auth")
       : `<script>location.href = '/dashboard'</script>`
     resp.end(result)
   } else {
