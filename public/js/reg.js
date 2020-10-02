@@ -30,8 +30,19 @@ loginInp.oninput = emailInp.oninput = passInp.oninput = passConfInp.oninput = go
   } else {
     goBtn.setAttribute("data-original-title", "Все поля указаны верно!")
     if (e.target == goBtn) {
-      const alert = new Alert("success", `Успешно!`)
-      alert.show()
+      fetch("/api/reg", {
+        method: "POST",
+        body: JSON.stringify({ login, email, pass })
+      }).then(resp => resp.json()).then(data => {
+        if (data.success) {
+          const alert = new Alert("success", `Успешно!`)
+          alert.show()
+          setTimeout(() => location.href = '/dashboard', 1200)
+        } else {
+          const alert = new Alert("danger", data.msg)
+          alert.show()
+        }
+      })
     } else {
       goBtn.className = `btn btn-success`
     }

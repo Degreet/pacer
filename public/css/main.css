@@ -67,19 +67,6 @@ body {
   transition: 1.3s;
 }
 
-.own-btn {
-  background: #fff;
-  color: #000;
-  border: 1px solid #bfbfbf;
-  box-shadow: 0px 7px 29px 0px #64646f33;
-  padding: 10px 23px;
-  transition: .5s;
-}
-
-.own-btn:hover {
-  transform: translateY(-10%);
-}
-
 #loader {
   position: fixed;
   top: 0;
@@ -175,4 +162,18 @@ body {
 
 .alert.show {
   transform: translateY(0);
+}
+
+.own-btn {
+  background: #fff;
+  color: #000;
+  border: 1px solid #bfbfbf;
+  box-shadow: 0px 7px 29px 0px #64646f33;
+  padding: 10px 23px;
+  cursor: pointer;
+  transition: .5s;
+}
+
+.own-btn:hover {
+  transform: translateY(-10%);
 }

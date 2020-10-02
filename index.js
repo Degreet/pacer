@@ -20,6 +20,38 @@ async function requestHandler(req, resp) {
 
   if (url.startsWith('/api/')) {
     url = url.slice(5)
+
+    if (url == 'reg') {
+      const user = JSON.parse(await streamToString(req))
+      const candidateLogin = await users.findOne({ login: user.login })
+      const candidateEmail = await users.findOne({ email: user.email })
+      const data = {}
+
+      if (candidateLogin) {
+        data.success = false
+        data.msg = `Такой логин уже занят!`
+      } else if (candidateEmail) {
+        data.success = false
+        data.msg = `Такой Email уже зарегистрирован!`
+      } else {
+        const pass = user.pass
+        const hashPass = bcrypt.hashSync(pass, 10)
+        const token = generateToken()
+
+        user.pass = hashPass
+        user.date = new Date().toISOString().slice(0, 19).replace("T", " ")
+        user.token = token
+
+        cookies.set("token", token)
+        await users.insertOne(user)
+        data.success = true
+      }
+
+      resp.end(JSON.stringify(data))
+    } else if (url == "logout") {
+      cookies.set("token", null)
+      resp.end()
+    }
   } else if (url == "/reg") {
     const result = await getCandidate(cookies, true)
       ? await getPage("Pacer - Регистрация", buildPath("reg.html"), "reg")
@@ -88,7 +120,7 @@ async function buildPage(title, body, scriptName) {
   const html = file.toString()
     .replace("PAGE_TITLE", title)
     .replace("PAGE_BODY", body)
-    .replace("MORE_SCRIPT", scriptName ? `<script src="/js/${scriptName}.js"></script>` : "")  
+    .replace("MORE_SCRIPT", scriptName ? `<script src="/js/${scriptName}.js"></script>` : "")
   return html
 }
 
