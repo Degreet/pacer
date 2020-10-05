@@ -1,10 +1,24 @@
 class Alert {
   constructor(type, text) {
     const alert = document.createElement("div")
-    this.alert = alert
     alert.className = `alert alert-${type}`
     alert.innerText = text
     document.body.append(alert)
+    this.alert = alert
+
+    const styles = document.createElement("style")
+    styles.innerHTML = /*css*/`
+      .alert {
+        transform: translateY(-150%);
+        transition: 1s;
+      }
+      
+      .alert.show {
+        transform: translateY(0);
+      }
+    `
+    
+    document.head.append(styles)
   }
 
   setType(type) {
@@ -20,7 +34,7 @@ class Alert {
   }
 
   show() {
-    this.alert.classList.add("show")
+    setTimeout(() => this.alert.classList.add("show"))
   }
 
   hide() {
