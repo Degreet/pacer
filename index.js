@@ -4,6 +4,7 @@ const { createServer } = require('http')
 const fs = require('fs'), fsp = fs.promises
 const bcrypt = require('bcrypt')
 const Cookies = require('cookies')
+const gmailMsg = require("gmail-send")
 const dotenv = require('dotenv')
 dotenv.config()
 
@@ -74,7 +75,125 @@ async function requestHandler(req, resp) {
     } else if (url == "logout") {
       cookies.set("token", null)
       resp.end()
+    } else if (url == "forgot-pass") {
+      const data = {}
+      const dataServer = JSON.parse(await streamToString(req))
+      let email
+
+      if (dataServer.email) email = dataServer.email
+      else email = (await getCandidate(cookies)).email
+
+      const id = generateToken()
+      const link = `${process.env.PORT ? "https://pacer-js.herokuapp.com" : "http://localhost:3000"}/confirm-change-pass/${id}`
+      const candidate = await getCandidateByData({ email })
+
+      if (candidate) {
+        sendMsgToEmail(
+          email,
+          "Pacer - Смена пароля",
+          `
+    Здравствуйте, ${candidate.login}! Чтобы изменить пароль, перейдите по данной ссылке: ${link}.
+    Данная ссылка действует всего 24 часа, поторопитесь!
+          `
+        )
+
+        await links.insertOne({
+          id,
+          started: new Date().toISOString().slice(0, 19).replace("T", " "),
+          login: candidate.login,
+          finished: false
+        })
+
+        data.success = true
+      } else {
+        data.success = false
+        data.msg = "Вы ввели неверный Email."
+      }
+
+      resp.end(JSON.stringify(data))
+    } else if (url.startsWith("dashboard/")) {
+      url = url.replace("dashboard/", "")
+
+      if (url == "change-pass") {
+        const passes = JSON.parse(await streamToString(req))
+        const candidate = await getCandidate(cookies)
+        const data = {}
+
+        if (candidate) {
+          const oldPass = passes.oldPass
+          const checkPasses = bcrypt.compareSync(oldPass, candidate.pass)
+
+          if (checkPasses) {
+            const newPass = bcrypt.hashSync(passes.newPass, 10)
+            await users.updateOne({ _id: candidate._id }, { $set: { pass: newPass } })
+            data.success = true
+          } else {
+            data.success = false
+            data.msg = `Неверный пароль.`
+          }
+        }
+
+        resp.end(JSON.stringify(data))
+      }
+    } else if (url == 'change-pass') {
+      const data = JSON.parse(await streamToString(req))
+      const link = await getLink(data.id)
+
+      if (link) {
+        const startedDate = new Date(link.started)
+        const nowDate = new Date
+
+        if (!(startedDate.getDate() < nowDate.getDate()
+          && startedDate.getHours() < nowDate.getHours()
+          || link.finished)) {
+          const pass = bcrypt.hashSync(data.pass, 10)
+          await users.updateOne({ login: link.login }, { $set: { pass } })
+          await links.deleteOne({ id: link.id })
+        }
+      }
+
+      resp.end()
     }
+  } else if (url.startsWith("/confirm-change-pass/")) {
+    const id = url.replace("/confirm-change-pass/", "")
+    const link = await getLink(id)
+
+    if (link) {
+      const startedDate = new Date(link.started)
+      const nowDate = new Date
+
+      if (startedDate.getDate() < nowDate.getDate()
+        && startedDate.getHours() < nowDate.getHours()
+        || link.finished) {
+        resp.end(await error404(`Время действия ссылки истекло.`))
+      } else {
+        resp.end(await getPage("Pacer - Смена пароля", buildPath("change-pass.html"), "change-pass"))
+      }
+    } else {
+      resp.end(await error404())
+    }
+  } else if (url == "/dashboard") {
+    const candidate = await getCandidate(cookies)
+    ifCandidate(candidate, async () => {
+      const html =
+        (await getPage("Pacer - Кабинет", buildPath("dashboard/dashboard.html"), "dashboard/dashboard"))
+          .replace("$username", candidate.login)
+      resp.end(html)
+    }, async () => {
+      resp.end(`<script>location.href = '/auth'</script>`)
+    })
+  } else if (url.startsWith("/dashboard/")) {
+    const candidate = await getCandidate(cookies)
+    const page = url.replace("/dashboard/", "")
+
+    ifCandidate(candidate, async () => {
+      const html =
+        (await getPage(`Pacer - ${getTitle(page)}`, buildPath(`dashboard/${page}.html`), `dashboard/${page}`))
+          .replace("$username", candidate.login)
+      resp.end(html ? html : await error404())
+    }, async () => {
+      resp.end(`<script>location.href = '/auth'</script>`)
+    })
   } else if (url == "/reg") {
     const result = await getCandidate(cookies, true)
       ? await getPage("Pacer - Регистрация", buildPath("reg.html"), "reg")
@@ -116,6 +235,39 @@ async function requestHandler(req, resp) {
       resp.end(await getPage("Pacer - Ошибка №404", buildPath("errors/404.html")))
     }
   }
+}
+
+function sendMsgToEmail(email, subject, text) {
+  gmailMsg({
+    user: 'pacer2020a@gmail.com',
+    pass: process.env.GMAIL_PASS,
+    to: `<${email}>`,
+    subject,
+    text
+  })()
+}
+
+async function error404(msg) {
+  const page = await getPage("Pacer - Ошибка №404", buildPath("errors/404.html"))
+  return page.replace("PAGE_MSG", msg ? msg : "Страница не найдена.")
+}
+
+function getTitle(page) {
+  return page
+    .replace("settings", "Настройки аккаунта")
+}
+
+function ifCandidate(candidate, onTrue, onFalse) {
+  (candidate ? onTrue : onFalse)()
+}
+
+async function getLink(id) {
+  const link = await links.findOne({ id })
+  return link
+}
+
+async function getCandidateByData(data) {
+  return await users.findOne(data)
 }
 
 async function getCandidate(cookies, needCheck) {
@@ -163,6 +315,7 @@ client.connect(err => {
   if (err) console.log(err)
 
   global.users = client.db("pacer").collection("users")
+  global.links = client.db("pacer").collection("links")
 
   server.listen(PORT, () => console.log('Server started at http://localhost:3000'))
   setTimeout(() => client.close(), 1e9)

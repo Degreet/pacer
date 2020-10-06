@@ -1,0 +1,23 @@
+<div id="dashboard">
+  <nav>
+    <span class="user">$username</span>
+    <ul>
+      <li><a href="/dashboard/settings">Настройки</a></li>
+      <li><a href="#" id="logoutBtn">Выйти</a></li>
+    </ul>
+  </nav>
+  <div class="main">
+    <div>
+      <h1 class="text-center mb-3">Изменить пароль</h1>
+      <form>
+        <input type="password" id="passOldInp" placeholder="Введите текущий пароль" class="form-control mt-2">
+        <input type="password" id="passNewInp" placeholder="Придумайте новый пароль" class="form-control mt-2">
+        <input type="password" id="passNewConfInp" placeholder="Повторите новый пароль" class="form-control mt-2">
+        <div class="mt-3">
+          <button class="btn btn-success" id="changePassBtn" type="button">Изменить</button>
+          <button class="btn btn-danger ml-2" id="forgotPassBtn" type="button">Забыл пароль</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -30,14 +30,14 @@ class Alert {
   }
 
   toggle(on) {
-    this.alert.classList.add(on)
+    setTimeout(() => this.alert.classList.add(on), 100)
   }
 
   show() {
-    setTimeout(() => this.alert.classList.add("show"))
+    setTimeout(() => this.alert.classList.add("show"), 100)
   }
 
   hide() {
-    this.alert.classList.remove("show")
+    setTimeout(() => this.alert.classList.remove("show"), 100)
   }
 }
