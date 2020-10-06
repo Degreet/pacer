@@ -112,6 +112,63 @@ async function requestHandler(req, resp) {
       }
 
       resp.end(JSON.stringify(data))
+    } else if (url == "change-email") {
+      const info = JSON.parse(await streamToString(req))
+      const candidate = await getCandidate(cookies)
+      const token = cookies.get("token")
+      const data = {}
+
+      if (candidate) {
+        const checkPass = bcrypt.compareSync(info.pass, candidate.pass)
+
+        if (checkPass) {
+          const { newEmail } = info
+          const code = generateCode()
+
+          sendMsgToEmail(newEmail, "Pacer - Подтвердите смену Email", `
+Чтобы подтвердить смену Email, введите данный код:
+<b>${code}</b>
+          `)
+
+          await users.updateOne({ token }, { $set: { code } })
+          data.success = true
+        } else {
+          data.success = false
+          data.msg = `Вы ввели неверный пароль.`
+        }
+      }
+
+      resp.end(JSON.stringify(data))
+    } else if (url == "confirm-change-email") {
+      const { code, newEmail } = JSON.parse(await streamToString(req))
+      const candidate = await getCandidate(cookies)
+      const token = cookies.get("token")
+      const data = {}
+
+      if (candidate) {
+        const realCode = candidate.code
+
+        if (realCode) {
+          if (realCode == code) {
+            data.success = true
+
+            await users.updateOne({ token }, {
+              $set: {
+                code: null,
+                email: newEmail
+              }
+            })
+          } else {
+            data.success = false
+            data.msg = `Неверный код!`
+          }
+        } else {
+          data.success = false
+          data.msg = `Код недоступен!`
+        }
+      }
+
+      resp.end(JSON.stringify(data))
     } else if (url.startsWith("dashboard/")) {
       url = url.replace("dashboard/", "")
 
@@ -238,14 +295,20 @@ async function requestHandler(req, resp) {
   }
 }
 
-function sendMsgToEmail(email, subject, text) {
+function sendMsgToEmail(email, subject, html) {
   gmailMsg({
     user: 'pacer2020a@gmail.com',
     pass: process.env.GMAIL_PASS,
     to: `<${email}>`,
     subject,
-    text
+    html
   })()
+}
+
+function generateCode() {
+  let res = ""
+  for (let i = 0; i < 6; i++) res += Math.floor(Math.random() * 9)
+  return res
 }
 
 async function error404(msg) {
