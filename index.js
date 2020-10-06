@@ -77,7 +77,8 @@ async function requestHandler(req, resp) {
       resp.end()
     } else if (url == "forgot-pass") {
       const data = {}
-      const dataServer = JSON.parse(await streamToString(req))
+      let dataServer = {}
+      try { dataServer = JSON.parse(await streamToString(req)) } catch { }
       let email
 
       if (dataServer.email) email = dataServer.email
