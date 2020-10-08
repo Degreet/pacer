@@ -92,7 +92,7 @@ body {
   z-index: -999;
 }
 
-#error {
+#center {
   position: fixed;
   top: 0;
   left: 0;
@@ -105,7 +105,7 @@ body {
   align-items: center;
 }
 
-#error .text {
+#center .text {
   font-size: 60px;
   font-weight: bold;
 }
@@ -228,4 +228,54 @@ nav ul li a:hover {
 
 .own-btn:hover {
   transform: translateY(-10%);
+}
+
+.width-100 {
+  width: 100%;
+}
+
+.endeavor-cats {
+  display: grid;
+  grid-template-columns: repeat(3, .2fr);
+  grid-gap: 10px;
+}
+
+.scale {
+  display: flex;
+}
+
+.scale label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.scale label:not(:first-child) {
+  margin-left: 10px;
+}
+
+.scale label span {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.scale label:first-child span {
+  color: red;
+}
+
+.scale label:first-child input:checked {
+  background-color: #fd3c3c !important;
+  border-color: #fd3c3c !important;
+}
+
+.scale label:first-child input:checked:focus {
+  box-shadow: 0 0 0 0.25rem rgb(253, 60, 60, .25);
+}
+
+#startBtn {
+  position: absolute;
+  bottom: 30%;
+  left: 50%;
+  transform: translateX(-50%);
 }

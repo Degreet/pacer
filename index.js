@@ -192,6 +192,26 @@ async function requestHandler(req, resp) {
         }
 
         resp.end(JSON.stringify(data))
+      } else if (url == "start") {
+        const info = JSON.parse(await streamToString(req))
+        const candidate = await getCandidate(cookies)
+        const token = cookies.get("token")
+        const data = {}
+
+        if (candidate && !candidate.etap) {
+          const confidence = +info.confidence
+          const etap = confidence
+
+          if (!isNaN(confidence) && confidence > 1 && confidence < 11) {
+            await users.updateOne({ token }, { $set: { confidence, etap } })
+            data.success = true
+          } else {
+            data.success = false
+            data.msg = `Неверные данные`
+          }
+        }
+
+        resp.end(JSON.stringify(data))
       }
     } else if (url == 'change-pass') {
       const data = JSON.parse(await streamToString(req))
@@ -233,11 +253,15 @@ async function requestHandler(req, resp) {
   } else if (url == "/dashboard") {
     const candidate = await getCandidate(cookies)
     ifCandidate(candidate, async () => {
-      let html =
-        (await getPage("Pacer - Кабинет", buildPath("dashboard/dashboard.html"), "dashboard/dashboard"))
-          .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
-      html = html.replace("$username", candidate.login)
-      resp.end(html)
+      if (candidate.etap) {
+        let html =
+          (await getPage("Pacer - Кабинет", buildPath("dashboard/dashboard.html"), "dashboard/dashboard"))
+            .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
+        html = html.replace("$username", candidate.login)
+        resp.end(html)
+      } else {
+        resp.end(`<script>location.href = '/dashboard/start'</script>`)
+      }
     }, async () => {
       resp.end(`<script>location.href = '/auth'</script>`)
     })
@@ -246,14 +270,28 @@ async function requestHandler(req, resp) {
     const page = url.replace("/dashboard/", "")
 
     ifCandidate(candidate, async () => {
-      let html =
-        (await getPage(`Pacer - ${getTitle(page)}`, buildPath(`dashboard/${page}.html`), `dashboard/${page}`))
-          .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
-      html = html.replace("$username", candidate.login)
-      resp.end(html ? html : await error404())
+      if (candidate.etap) {
+        let html =
+          (await getPage(`Pacer - ${getTitle(page)}`, buildPath(`dashboard/${page}.html`), `dashboard/${page}`))
+            .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
+        html = html.replace("$username", candidate.login)
+        resp.end(html ? html : await error404())
+      } else {
+        resp.end(`<script>location.href = '/start'</script>`)
+      }
     }, async () => {
       resp.end(`<script>location.href = '/auth'</script>`)
     })
+  } else if (url == "/start") {
+    const candidate = await getCandidate(cookies)
+
+    ifCandidate(candidate, async () => {
+      if (!candidate.started) resp.end(await getPage("Pacer - Начало", buildPath("start.html"), "start"))
+      else resp.end(`<script>location.href = '/dashboard'</script>`)
+    }, () => {
+      resp.end(`<script>location.href = '/auth'</script>`)
+    })
+
   } else if (url == "/reg") {
     const result = await getCandidate(cookies, true)
       ? await getPage("Pacer - Регистрация", buildPath("reg.html"), "reg")

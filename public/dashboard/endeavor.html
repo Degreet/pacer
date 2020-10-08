@@ -1,0 +1,40 @@
+<div id="dashboard">
+  <nav id="nav"></nav>
+  <div class="main mt-3">
+    <h1 class="text-center">Стремления</h1>
+    <form class="mt-3">
+      <label>
+        Чего ты хочешь достигнуть? Какой результат желаешь получить?
+        <input type="text" id="endeavorInp" class="form-control mt-2 width-100" placeholder="Введите стремление"></input>
+      </label>
+      <div class="mt-3">
+        <label>Чем является это стремление для тебя?</label>
+        <!-- <label>Чем является это стремление для тебя?
+          <select class="form-select mt-2 width-100" multiple>
+            <option value="wish">Желание</option>
+            <option value="goal">Цель</option>
+            <option value="task">Задача</option>
+            <option value="skill">Знание/навык</option>
+            <option value="dream">Мечта</option>
+            <option value="goodHabit">Полезная привычка</option>
+            <option value="badHabit">Вредная привычка</option>
+            <option value="problem">Проблема</option>
+            <option value="burden">Гирька</option>
+          </select>
+        </label> -->
+        <div class="endeavor-cats mt-2">
+          <label><input class="form-check-input mr-2" type="checkbox" value="" id="wishBox">Желание</label>
+          <label><input class="form-check-input mr-2" type="checkbox" value="" id="goalBox">Цель</label>
+          <label><input class="form-check-input mr-2" type="checkbox" value="" id="taskBox">Задача</label>
+          <label><input class="form-check-input mr-2" type="checkbox" value="" id="skillBox">Знание/навык</label>
+          <label><input class="form-check-input mr-2" type="checkbox" value="" id="dreamBox">Мечта</label>
+          <label><input class="form-check-input mr-2" type="checkbox" value="" id="goodHabitBox">Полезная привычка</label>
+          <label><input class="form-check-input mr-2" type="checkbox" value="" id="problemBox">Проблема</label>
+          <label><input class="form-check-input mr-2" type="checkbox" value="" id="burdenBox">Гирька</label>
+          <label><input class="form-check-input mr-2" type="checkbox" value="" id="badHabitBox">Вредная привычка</label>
+        </div>
+      </div>
+      <button class="btn btn-danger mt-4" id="saveEndeavorBtn">Запомнить стремление</button>
+    </form>
+  </div>
+</div>
