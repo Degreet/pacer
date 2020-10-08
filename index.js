@@ -233,9 +233,10 @@ async function requestHandler(req, resp) {
   } else if (url == "/dashboard") {
     const candidate = await getCandidate(cookies)
     ifCandidate(candidate, async () => {
-      const html =
+      let html =
         (await getPage("Pacer - Кабинет", buildPath("dashboard/dashboard.html"), "dashboard/dashboard"))
-          .replace("$username", candidate.login)
+          .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
+      html = html.replace("$username", candidate.login)
       resp.end(html)
     }, async () => {
       resp.end(`<script>location.href = '/auth'</script>`)
@@ -245,9 +246,10 @@ async function requestHandler(req, resp) {
     const page = url.replace("/dashboard/", "")
 
     ifCandidate(candidate, async () => {
-      const html =
+      let html =
         (await getPage(`Pacer - ${getTitle(page)}`, buildPath(`dashboard/${page}.html`), `dashboard/${page}`))
-          .replace("$username", candidate.login)
+          .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
+      html = html.replace("$username", candidate.login)
       resp.end(html ? html : await error404())
     }, async () => {
       resp.end(`<script>location.href = '/auth'</script>`)
@@ -293,6 +295,12 @@ async function requestHandler(req, resp) {
       resp.end(await getPage("Pacer - Ошибка №404", buildPath("errors/404.html")))
     }
   }
+}
+
+async function getFile(path) {
+  const [file] = await Promise.all([fsp.readFile(path)])
+  const html = file.toString()
+  return html
 }
 
 function sendMsgToEmail(email, subject, html) {
