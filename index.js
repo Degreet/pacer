@@ -229,6 +229,17 @@ async function requestHandler(req, resp) {
         }
 
         resp.end(JSON.stringify(data))
+      } else if (url == "new-activity") {
+        const info = JSON.parse(await streamToString(req))
+        const candidate = await getCandidate(cookies)
+
+        if (candidate) {
+          info.date = getDate()
+          info.userId = candidate._id
+          await activities.insertOne(info)
+        }
+
+        resp.end()
       }
     } else if (url == 'change-pass') {
       const data = JSON.parse(await streamToString(req))
@@ -288,13 +299,23 @@ async function requestHandler(req, resp) {
 
     ifCandidate(candidate, async () => {
       if (candidate.etap) {
-        const userEndeavors = await endeavors.find({ userId: candidate._id }).toArray()
 
         let html =
           (await getPage(`Pacer - ${getTitle(page)}`, buildPath(`dashboard/${page}.html`), `dashboard/${page}`))
             .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
-            .replace(/(id="endeavorList">)/, "$1" + userEndeavors.map(buildEndeavor).join(""))
         html = html.replace("$username", candidate.login)
+
+        if (page == "endeavor") {
+          const userEndeavors = await endeavors.find({ userId: candidate._id }).toArray()
+          html = html.replace(/(id="endeavorList">)/, "$1" + userEndeavors.map(buildEndeavor).join(""))
+        } else if (page == "activity") {
+          const etap = candidate.etap
+          const userActivities = await activities.find({ userId: candidate._id }).sort({ _id: -1 }).toArray()
+          html = html
+            .replace("X", etap)
+            .replace(/(id="activityList">)/, "$1" + userActivities.map(buildActivity).join(""))
+        }
+
         resp.end(html ? html : await error404())
       } else {
         resp.end(`<script>location.href = '/start'</script>`)
@@ -369,6 +390,20 @@ function buildEndeavor(endeavor) {
   `
 }
 
+function buildActivity(activity) {
+  return /*html*/`
+    <li class="alert alert-primary">
+      <span>${activity.activity}</span>
+      <span>${activity.measure}</span>
+      <span>
+        <span class="badge bg-primary" data-toggle="tooltip" data-placement="top" title="Субъективная сложность">
+          ${activity.hard}
+        </span>
+      </span>
+    </li>
+  `
+}
+
 function buildCats(cats) {
   const allCats = [
     "Желание", "Цель", "Задача",
@@ -409,6 +444,7 @@ function getTitle(page) {
   return page
     .replace("settings", "Настройки аккаунта")
     .replace("endeavor", "Стремления")
+    .replace("activity", "Активность")
 }
 
 function ifCandidate(candidate, onTrue, onFalse) {
@@ -471,6 +507,7 @@ client.connect(err => {
   global.users = client.db("pacer").collection("users")
   global.links = client.db("pacer").collection("links")
   global.endeavors = client.db("pacer").collection("endeavors")
+  global.activities = client.db("pacer").collection("activities")
 
   server.listen(PORT, () => console.log('Server started at http://localhost:3000'))
   setTimeout(() => client.close(), 1e9)

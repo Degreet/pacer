@@ -281,7 +281,7 @@ nav ul li a:hover {
   transform: translateX(-50%);
 }
 
-#openAddEndeavorModalBtn {
+.add-btn {
   position: fixed;
   right: 15px;
   bottom: 15px;
@@ -295,20 +295,36 @@ nav ul li a:hover {
   height: 50px;
 }
 
-#endeavorList {
+.list-info {
   list-style-type: none;
+  padding: 0 !important;
 }
 
-#endeavorList li {
+.list-info li {
   margin-top: 25px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-#endeavorList li h1 {
+.list-info li h1 {
   font-size: 25px;
   margin: 0 !important;
+}
+
+#activityList li {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+#activityList li span {
+  font-size: 20px;
+  text-align: center;
+}
+
+#hardDiv {
+  display: flex;
+  justify-content: center;
 }
 
 @media (min-width: 576px) {

@@ -1,0 +1,55 @@
+<button class="btn btn-success rounded-circle add-btn" id="openAddActivityModalBtn" data-toggle="modal"
+  data-target="#addActivityModal"><span>+</span></button>
+
+<div id="dashboard">
+  <nav id="nav"></nav>
+  <div class="main mt-3">
+    <h1 class="text-center">Действия</h1>
+    <ul class="list-info" id="activityList"></ul>
+  </div>
+</div>
+
+<div class="modal fade" id="addActivityModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Добавить действие</h5>
+        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="mt-3">
+          <label>
+            Какое действие нужно регулярно выполнять (или избегать)
+            для приближения к каким-то из твоих стремлений?
+            <input type="text" id="activityInp" class="form-control mt-2 width-100" placeholder="Укажи действие">
+          </label>
+          <label class="mt-3">
+            Укажи количественную меру выполнения в день (сколько минут, повторений, кругов, раз...)
+            <input type="text" id="measureInp" class="form-control mt-2 width-100" placeholder="Определи меру">
+          </label>
+          <label class="mt-3 width-100">
+            Укажи регулярность
+            <select class="form-select mt-3" id="schemaSelect">
+              <option value="1" selected>ежедневно</option>
+              <option value="2">через день</option>
+              <option value="3">день через два</option>
+              <option value="4">день через три</option>
+              <option value="5">день через четыре</option>
+              <option value="6">день через пять</option>
+              <option value="7">еженедельно</option>
+            </select>
+          </label>
+          <div class="mt-3">
+            Оцени для себя субъективную сложность серии из X выполнений?
+            <div id="hardDiv" class="mt-2"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="saveActivityBtn">Запомнить
+          действие</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+      </div>
+    </div>
+  </div>
+</div>
