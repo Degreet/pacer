@@ -212,6 +212,23 @@ async function requestHandler(req, resp) {
         }
 
         resp.end(JSON.stringify(data))
+      } else if (url == "add-endeavor") {
+        const info = JSON.parse(await streamToString(req))
+        const candidate = await getCandidate(cookies)
+        const data = {}
+
+        if (candidate) {
+          info.date = getDate()
+          info.userId = candidate._id
+
+          await endeavors.insertOne(info)
+          data.success = true
+        } else {
+          data.success = false
+          data.msg = `Вы не авторизованы`
+        }
+
+        resp.end(JSON.stringify(data))
       }
     } else if (url == 'change-pass') {
       const data = JSON.parse(await streamToString(req))
@@ -271,9 +288,12 @@ async function requestHandler(req, resp) {
 
     ifCandidate(candidate, async () => {
       if (candidate.etap) {
+        const userEndeavors = await endeavors.find({ userId: candidate._id }).toArray()
+
         let html =
           (await getPage(`Pacer - ${getTitle(page)}`, buildPath(`dashboard/${page}.html`), `dashboard/${page}`))
             .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
+            .replace(/(id="endeavorList">)/, "$1" + userEndeavors.map(buildEndeavor).join(""))
         html = html.replace("$username", candidate.login)
         resp.end(html ? html : await error404())
       } else {
@@ -335,6 +355,29 @@ async function requestHandler(req, resp) {
   }
 }
 
+function getDate() {
+  return new Date().toISOString().slice(0, 19).replace("T", " ")
+}
+
+function buildEndeavor(endeavor) {
+  return /*html*/`
+    <li class="alert alert-primary">
+      <h1>${endeavor.endeavor}</h1>
+      <button class="btn btn-primary" data-toggle="tooltip" data-placement="top"
+        data-html="true" title="${buildCats(endeavor.cats)}">Подробнее</button>
+    </li>
+  `
+}
+
+function buildCats(cats) {
+  const allCats = [
+    "Желание", "Цель", "Задача",
+    "Знание/навык", "Мечта", "Полезная привычка",
+    "Проблема", "Гирька", "Вредная привычка"]
+  cats = cats.split(",")
+  return cats.map(i => `<h4 class='badge bg-secondary mb-1'>${allCats[i]}</h4>`).join(" ")
+}
+
 async function getFile(path) {
   const [file] = await Promise.all([fsp.readFile(path)])
   const html = file.toString()
@@ -365,6 +408,7 @@ async function error404(msg) {
 function getTitle(page) {
   return page
     .replace("settings", "Настройки аккаунта")
+    .replace("endeavor", "Стремления")
 }
 
 function ifCandidate(candidate, onTrue, onFalse) {
@@ -426,6 +470,7 @@ client.connect(err => {
 
   global.users = client.db("pacer").collection("users")
   global.links = client.db("pacer").collection("links")
+  global.endeavors = client.db("pacer").collection("endeavors")
 
   server.listen(PORT, () => console.log('Server started at http://localhost:3000'))
   setTimeout(() => client.close(), 1e9)
