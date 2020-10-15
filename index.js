@@ -169,6 +169,20 @@ async function requestHandler(req, resp) {
       }
 
       resp.end(JSON.stringify(data))
+    } else if (url == "get-activity") {
+      const { id } = JSON.parse(await streamToString(req))
+      const activity = await activities.findOne({ _id: ObjectId(id) })
+      const data = {}
+
+      if (activity) {
+        data.success = true
+        data.activity = activity
+      } else {
+        data.success = false
+        data.activity = null
+      }
+
+      resp.end(JSON.stringify(data))
     } else if (url.startsWith("dashboard/")) {
       url = url.replace("dashboard/", "")
 
@@ -392,7 +406,7 @@ function buildEndeavor(endeavor) {
 
 function buildActivity(activity) {
   return /*html*/`
-    <li class="alert alert-primary">
+    <li class="alert alert-primary" data-id="${activity._id.toString()}">
       <span>${activity.activity}</span>
       <span>${activity.measure}</span>
       <span>
@@ -444,7 +458,7 @@ function getTitle(page) {
   return page
     .replace("settings", "Настройки аккаунта")
     .replace("endeavor", "Стремления")
-    .replace("activity", "Активность")
+    .replace("activity", "Действия")
 }
 
 function ifCandidate(candidate, onTrue, onFalse) {
