@@ -1,6 +1,8 @@
 const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'))
 tooltipList = tooltipTriggerList.map(el => new bootstrap.Tooltip(el))
 
+const aboutActivityModalBS = new bootstrap.Modal(aboutActivityModal)
+
 const schemata = [
   "ежедневно", "через день", "день через два",
   "день через три", "день через четыре", "день через пять", "еженедельно"]
@@ -35,47 +37,29 @@ saveActivityBtn.onclick = () => {
   }
 }
 
-activityList.querySelectorAll("li").forEach(li => {
-  const id = li.dataset.id
+function aboutModal(activity) {
+  aboutActivityModal.querySelector(".modal-body").innerHTML = /*html*/`
+    <div>Действие: ${activity.activity}</div>
+    <div>Регулярность: ${schemata[activity.schema - 1]}</div>
+    <div>Мера: ${activity.measure}</div>
+    <div>Сложность: ${activity.hard}</div>
+  `
+
+  aboutActivityModalTitle.innerText = activity.activity
+  takeQuestBtn.onclick = () => {}
+  aboutActivityModalBS.toggle()
+}
+
+activityList.onclick = e => {
+  if (e.target == activityList) return
+
+  const li = e.target.closest("li")
+  const { id } = li.dataset
 
   fetch("/api/get-activity", {
     method: "POST",
     body: JSON.stringify({ id })
   }).then(resp => resp.json()).then(data => {
-    if (data.success) {
-      const { activity } = data
-      const modalEl = document.createElement("div")
-      document.body.append(modalEl)
-
-      modalEl.className = "modal fade"
-      modalEl.setAttribute("aria-hidden", true)
-
-      modalEl.innerHTML = /*html*/`
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">${activity.activity}</h5>
-              <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <div>Действие: ${activity.activity}</div>
-              <div>Регулярность: ${schemata[activity.schema - 1]}</div>
-              <div>Мера: ${activity.measure}</div>
-              <div>Сложность: ${activity.hard}</div>
-              <button class="btn btn-primary mt-2">Взять квест!</button>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
-            </div>
-          </div>
-        </div>
-      `
-
-      const modal = new bootstrap.Modal(modalEl)
-      li.onclick = () => modal.toggle()
-    } else {
-      const alert = new Alert("danger", `Произошла ошибка.`)
-      alert.show()
-    }
+    aboutModal(data.activity)
   })
-})
+}
