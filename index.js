@@ -313,24 +313,27 @@ async function requestHandler(req, resp) {
 
     ifCandidate(candidate, async () => {
       if (candidate.etap) {
-
-        let html =
-          (await getPage(`Pacer - ${getTitle(page)}`, buildPath(`dashboard/${page}.html`), `dashboard/${page}`))
-            .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
-        html = html.replace("$username", candidate.login)
-
-        if (page == "endeavor") {
-          const userEndeavors = await endeavors.find({ userId: candidate._id }).toArray()
-          html = html.replace(/(id="endeavorList">)/, "$1" + userEndeavors.map(buildEndeavor).join(""))
-        } else if (page == "activity") {
-          const etap = candidate.etap
-          const userActivities = await activities.find({ userId: candidate._id }).sort({ _id: -1 }).toArray()
+        if (page == "endeavor" || page == "activity") {
+          let html =
+            (await getPage(`Pacer - ${getTitle(page)}`, buildPath(`dashboard/${page}.html`), [`dashboard/${page}`, `dashboard/main`]))
+              .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
           html = html
-            .replace("X", etap)
-            .replace(/(id="activityList">)/, "$1" + userActivities.map(buildActivity).join(""))
+            .replace("$username", candidate.login)
+            .replace("</a>", "</a>" + `<span class="text-muted" id="time">00:00:00</span>`)
+          if (page == "endeavor") {
+            const userEndeavors = await endeavors.find({ userId: candidate._id }).toArray()
+            html = html.replace(/(id="endeavorList">)/, "$1" + userEndeavors.map(buildEndeavor).join(""))
+          } else if (page == "activity") {
+            const etap = candidate.etap
+            const userActivities = await activities.find({ userId: candidate._id }).sort({ _id: -1 }).toArray()
+            html = html
+              .replace("X", etap)
+              .replace(/(id="activityList">)/, "$1" + userActivities.map(buildActivity).join(""))
+          }
+          resp.end(html)
+        } else {
+          resp.end(await error404())
         }
-
-        resp.end(html ? html : await error404())
       } else {
         resp.end(`<script>location.href = '/start'</script>`)
       }
@@ -501,10 +504,18 @@ function streamToString(stream) {
 
 async function buildPage(title, body, scriptName) {
   const [file] = await Promise.all([fsp.readFile(buildPath("templates/body.html"))])
-  const html = file.toString()
+  let html = file.toString()
     .replace("PAGE_TITLE", title)
     .replace("PAGE_BODY", body)
-    .replace("MORE_SCRIPT", scriptName ? `<script src="/js/${scriptName}.js"></script>` : "")
+
+  if (scriptName instanceof Array) {
+    html = html.replace("MORE_SCRIPT",
+      scriptName.map(script => `<script src="/js/${script}.js"></script>`).join(""))
+  } else {
+    html = html
+      .replace("MORE_SCRIPT", scriptName ? `<script src="/js/${scriptName}.js"></script>` : "")
+  }
+
   return html
 }
 

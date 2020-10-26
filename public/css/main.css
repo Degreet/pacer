@@ -136,6 +136,14 @@ body {
   padding: 30px;
 }
 
+#dashboard .main-for-clock {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+}
+
 nav {
   display: flex;
   justify-content: space-between;
@@ -146,6 +154,8 @@ nav {
 
 nav .user {
   font-size: 20px;
+  color: #000;
+  text-decoration: none;
 }
 
 nav ul {
@@ -325,6 +335,23 @@ nav ul li a:hover {
 #hardDiv {
   display: flex;
   justify-content: center;
+}
+
+.clock-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.clock-container span:first-child {
+  font-size: 20px;
+}
+
+.clock-container span:last-child {
+  font-size: 60px;
+  font-weight: bold;
+  line-height: 60px;
 }
 
 @media (min-width: 576px) {
