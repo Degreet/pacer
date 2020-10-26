@@ -319,7 +319,8 @@ async function requestHandler(req, resp) {
               .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
           html = html
             .replace("$username", candidate.login)
-            .replace("</a>", "</a>" + `<span class="text-muted" id="time">00:00:00</span>`)
+            .replace("</span>", "</span>" + `<span class="text-muted" id="time">00:00:00</span>`)
+            .replace("$confidence", candidate.confidence)
           if (page == "endeavor") {
             const userEndeavors = await endeavors.find({ userId: candidate._id }).toArray()
             html = html.replace(/(id="endeavorList">)/, "$1" + userEndeavors.map(buildEndeavor).join(""))

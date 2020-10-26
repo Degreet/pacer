@@ -305,6 +305,10 @@ nav ul li a:hover {
   height: 60px;
 }
 
+#confidenceSpan {
+  font-size: 20px;
+}
+
 .list-info {
   list-style-type: none;
   padding: 0 !important;
