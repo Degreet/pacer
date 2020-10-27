@@ -358,6 +358,43 @@ nav ul li a:hover {
   line-height: 60px;
 }
 
+#questLengthScale .d-flex {
+  flex-flow: wrap;
+  margin-top: 5px;
+}
+
+.carousel {
+  margin-top: 20px;
+}
+
+.calendar {
+  display: flex;
+  justify-content: center;
+}
+
+.calendar .month div {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 8px;
+  max-width: 90%;
+}
+
+.calendar .month .name {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.calendar .month:not(:first-child) {
+  margin-left: 35px;
+}
+
+.calendar span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 @media (min-width: 576px) {
   .modal-dialog {
     max-width: 600px !important;
