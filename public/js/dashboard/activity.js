@@ -70,13 +70,22 @@ function createQuestModal(activity) {
       </div>
     </div>
 
-    <div id="carouselExampleControls" class="carousel carousel-dark slide" data-ride="carousel">
+    <div id="carouselExampleControls" class="carousel carousel-dark slide" data-ride="carousel" data-interval="0">
       <div class="carousel-inner">
         <div class="carousel-item active">
           <div class="calendar" class="mt-3">
             <div class="month">
               <span class="name">Октябрь</span>
-              <div>
+              <div class="days">
+                <span class="text-muted">пн</span>
+                <span class="text-muted">вт</span>
+                <span class="text-muted">ср</span>
+                <span class="text-muted">чт</span>
+                <span class="text-muted">пт</span>
+                <span class="text-muted">сб</span>
+                <span class="text-muted">вс</span>
+              </div>
+              <div class="dates">
                 <span class="text-muted">26</span>
                 <span class="text-muted">27</span>
                 <span class="text-muted">28</span>
@@ -123,7 +132,16 @@ function createQuestModal(activity) {
             </div>
             <div class="month">
               <span class="name">Ноябрь</span>
-              <div>
+              <div class="days">
+                <span class="text-muted">пн</span>
+                <span class="text-muted">вт</span>
+                <span class="text-muted">ср</span>
+                <span class="text-muted">чт</span>
+                <span class="text-muted">пт</span>
+                <span class="text-muted">сб</span>
+                <span class="text-muted">вс</span>
+              </div>
+              <div class="dates">
                 <span class="text-muted">26</span>
                 <span class="text-muted">27</span>
                 <span class="text-muted">28</span>
@@ -174,7 +192,16 @@ function createQuestModal(activity) {
           <div class="calendar" class="mt-3">
             <div class="month">
               <span class="name">Декабрь</span>
-              <div>
+              <div class="days">
+                <span class="text-muted">пн</span>
+                <span class="text-muted">вт</span>
+                <span class="text-muted">ср</span>
+                <span class="text-muted">чт</span>
+                <span class="text-muted">пт</span>
+                <span class="text-muted">сб</span>
+                <span class="text-muted">вс</span>
+              </div>
+              <div class="dates">
                 <span class="text-muted">26</span>
                 <span class="text-muted">27</span>
                 <span class="text-muted">28</span>
@@ -221,7 +248,16 @@ function createQuestModal(activity) {
             </div>
             <div class="month">
               <span class="name">Январь</span>
-              <div>
+              <div class="days">
+                <span class="text-muted">пн</span>
+                <span class="text-muted">вт</span>
+                <span class="text-muted">ср</span>
+                <span class="text-muted">чт</span>
+                <span class="text-muted">пт</span>
+                <span class="text-muted">сб</span>
+                <span class="text-muted">вс</span>
+              </div>
+              <div class="dates">
                 <span class="text-muted">26</span>
                 <span class="text-muted">27</span>
                 <span class="text-muted">28</span>
@@ -286,6 +322,11 @@ function createQuestModal(activity) {
 
   aboutActivityModalBS.hide()
   takeQuestModalBS.show()
+}
+
+function buildMonth(month, year) {
+  let html = ""
+  
 }
 
 function aboutModal(activity) {
