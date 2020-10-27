@@ -299,7 +299,9 @@ async function requestHandler(req, resp) {
         let html =
           (await getPage("Pacer - Кабинет", buildPath("dashboard/dashboard.html"), "dashboard/dashboard"))
             .replace(/(<nav id="nav">)/, "$1" + await getFile(buildPath("templates/dashboard-header.htm")))
-        html = html.replace("$username", candidate.login)
+        html = html
+          .replace("$username", candidate.login)
+          .replace("$confidence", candidate.confidence)
         resp.end(html)
       } else {
         resp.end(`<script>location.href = '/dashboard/start'</script>`)
