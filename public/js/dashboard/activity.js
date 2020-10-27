@@ -8,6 +8,13 @@ const schemata = [
   "ежедневно", "через день", "день через два",
   "день через три", "день через четыре", "день через пять", "еженедельно"]
 
+const months = [
+  'Январь', 'Февраль', 'Март',
+  'Апрель', 'Май', 'Июнь',
+  'Июль', 'Август', 'Сентябрь',
+  'Октябрь', 'Ноябрь', 'Декабрь'
+]
+
 const scale = new ScaleOfNums({ stylesType: "bootstrap" })
 scale.createScale(1, 10, "hardScale")
 scale.appendToParent(hardDiv)
@@ -70,240 +77,106 @@ function createQuestModal(activity) {
       </div>
     </div>
 
+    ${buildCalendars(new Date, 60)}
+  `
+
+  const scale = new ScaleOfNums({ stylesType: "bootstrap" })
+  scale.createScale(1, 30, "quest-length")
+  scale.appendToParent(questLengthScale)
+
+  aboutActivityModalBS.hide()
+  takeQuestModalBS.show()
+}
+
+function buildMonth({ year, month }) {
+  const dates = []
+  let date = new Date(year, month)
+
+  for (let i = 1; i <= 31; i++) {
+    if (date.getMonth() == month) dates.push(i)
+    else break
+
+    date.setDate(date.getDate() + 1)
+  }
+
+  const prevDates = []
+  date = new Date(year, month)
+
+  if (date.getDay() != 1) {
+    date.setDate(date.getDate() - (date.getDay() || 7) + 1)
+    while (date.getMonth() != month) {
+      prevDates.push(date.getDate())
+      date.setDate(date.getDate() + 1)
+    }
+  }
+
+  const nextDates = []
+  date = new Date(year, month + 1)
+
+  while (date.getDay() != 1) {
+    nextDates.push(date.getDate())
+    date.setDate(date.getDate() + 1)
+  }
+
+  return /*html*/`
+    <div class="month">
+      <span class="name">${months[month]}</span>
+      <div class="days">
+        <span class="text-muted">пн</span>
+        <span class="text-muted">вт</span>
+        <span class="text-muted">ср</span>
+        <span class="text-muted">чт</span>
+        <span class="text-muted">пт</span>
+        <span class="text-muted">сб</span>
+        <span class="text-muted">вс</span>
+      </div>
+      <div class="dates">
+        ${prevDates.map(date => `<span class="text-muted">${date}</span>`).join("")}
+        ${dates.map(date => `<span>${date}</span>`).join("")}
+        ${nextDates.map(date => `<span class="text-muted">${date}</span>`).join("")}
+      </div>
+    </div>
+  `
+}
+
+function buildCalendars(start, length) {
+  const dateEnd = new Date(start)
+  dateEnd.setDate(dateEnd.getDate() + length)
+
+  const startYear = start.getFullYear()
+  const endYear = dateEnd.getFullYear()
+  const monthStart = start.getMonth()
+  const monthEnd = dateEnd.getMonth()
+  let monthsCount = (endYear - startYear) * 12 + monthEnd - monthStart + 1
+
+  if (monthsCount % 2) monthsCount++
+
+  const months = []
+  const date = new Date(start)
+
+  for (let i = 0; i < monthsCount; i++) {
+    months.push({
+      year: date.getFullYear(),
+      month: date.getMonth()
+    })
+
+    date.setMonth(date.getMonth() + 1)
+  }
+
+  const monthPairs = []
+  for (let i = 0; i < months.length; i += 2)
+    monthPairs.push([months[i], months[i + 1]])
+
+  return `
     <div id="carouselExampleControls" class="carousel carousel-dark slide" data-ride="carousel" data-interval="0">
       <div class="carousel-inner">
-        <div class="carousel-item active">
-          <div class="calendar" class="mt-3">
-            <div class="month">
-              <span class="name">Октябрь</span>
-              <div class="days">
-                <span class="text-muted">пн</span>
-                <span class="text-muted">вт</span>
-                <span class="text-muted">ср</span>
-                <span class="text-muted">чт</span>
-                <span class="text-muted">пт</span>
-                <span class="text-muted">сб</span>
-                <span class="text-muted">вс</span>
-              </div>
-              <div class="dates">
-                <span class="text-muted">26</span>
-                <span class="text-muted">27</span>
-                <span class="text-muted">28</span>
-                <span class="text-muted">29</span>
-                <span class="text-muted">30</span>
-                <span class="text-muted">31</span>
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
-                <span>6</span>
-                <span>7</span>
-                <span>8</span>
-                <span>9</span>
-                <span>10</span>
-                <span>11</span>
-                <span>12</span>
-                <span>13</span>
-                <span>14</span>
-                <span>15</span>
-                <span>16</span>
-                <span>17</span>
-                <span>18</span>
-                <span>19</span>
-                <span>20</span>
-                <span>21</span>
-                <span>22</span>
-                <span>23</span>
-                <span>24</span>
-                <span>25</span>
-                <span>26</span>
-                <span>27</span>
-                <span>28</span>
-                <span>29</span>
-                <span>30</span>
-                <span>31</span>
-                <span class="text-muted">1</span>
-                <span class="text-muted">2</span>
-                <span class="text-muted">3</span>
-                <span class="text-muted">4</span>
-                <span class="text-muted">5</span>
-              </div>
-            </div>
-            <div class="month">
-              <span class="name">Ноябрь</span>
-              <div class="days">
-                <span class="text-muted">пн</span>
-                <span class="text-muted">вт</span>
-                <span class="text-muted">ср</span>
-                <span class="text-muted">чт</span>
-                <span class="text-muted">пт</span>
-                <span class="text-muted">сб</span>
-                <span class="text-muted">вс</span>
-              </div>
-              <div class="dates">
-                <span class="text-muted">26</span>
-                <span class="text-muted">27</span>
-                <span class="text-muted">28</span>
-                <span class="text-muted">29</span>
-                <span class="text-muted">30</span>
-                <span class="text-muted">31</span>
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
-                <span>6</span>
-                <span>7</span>
-                <span>8</span>
-                <span>9</span>
-                <span>10</span>
-                <span>11</span>
-                <span>12</span>
-                <span>13</span>
-                <span>14</span>
-                <span>15</span>
-                <span>16</span>
-                <span>17</span>
-                <span>18</span>
-                <span>19</span>
-                <span>20</span>
-                <span>21</span>
-                <span>22</span>
-                <span>23</span>
-                <span>24</span>
-                <span>25</span>
-                <span>26</span>
-                <span>27</span>
-                <span>28</span>
-                <span>29</span>
-                <span>30</span>
-                <span>31</span>
-                <span class="text-muted">1</span>
-                <span class="text-muted">2</span>
-                <span class="text-muted">3</span>
-                <span class="text-muted">4</span>
-                <span class="text-muted">5</span>
-              </div>
+        ${monthPairs.map((pair, i) => `
+          <div class="carousel-item${i == 0 ? " active" : ""}">
+            <div class="calendar" class="mt-3">
+              ${pair.map(buildMonth).join("")}
             </div>
           </div>
-        </div>
-        <div class="carousel-item">
-          <div class="calendar" class="mt-3">
-            <div class="month">
-              <span class="name">Декабрь</span>
-              <div class="days">
-                <span class="text-muted">пн</span>
-                <span class="text-muted">вт</span>
-                <span class="text-muted">ср</span>
-                <span class="text-muted">чт</span>
-                <span class="text-muted">пт</span>
-                <span class="text-muted">сб</span>
-                <span class="text-muted">вс</span>
-              </div>
-              <div class="dates">
-                <span class="text-muted">26</span>
-                <span class="text-muted">27</span>
-                <span class="text-muted">28</span>
-                <span class="text-muted">29</span>
-                <span class="text-muted">30</span>
-                <span class="text-muted">31</span>
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
-                <span>6</span>
-                <span>7</span>
-                <span>8</span>
-                <span>9</span>
-                <span>10</span>
-                <span>11</span>
-                <span>12</span>
-                <span>13</span>
-                <span>14</span>
-                <span>15</span>
-                <span>16</span>
-                <span>17</span>
-                <span>18</span>
-                <span>19</span>
-                <span>20</span>
-                <span>21</span>
-                <span>22</span>
-                <span>23</span>
-                <span>24</span>
-                <span>25</span>
-                <span>26</span>
-                <span>27</span>
-                <span>28</span>
-                <span>29</span>
-                <span>30</span>
-                <span>31</span>
-                <span class="text-muted">1</span>
-                <span class="text-muted">2</span>
-                <span class="text-muted">3</span>
-                <span class="text-muted">4</span>
-                <span class="text-muted">5</span>
-              </div>
-            </div>
-            <div class="month">
-              <span class="name">Январь</span>
-              <div class="days">
-                <span class="text-muted">пн</span>
-                <span class="text-muted">вт</span>
-                <span class="text-muted">ср</span>
-                <span class="text-muted">чт</span>
-                <span class="text-muted">пт</span>
-                <span class="text-muted">сб</span>
-                <span class="text-muted">вс</span>
-              </div>
-              <div class="dates">
-                <span class="text-muted">26</span>
-                <span class="text-muted">27</span>
-                <span class="text-muted">28</span>
-                <span class="text-muted">29</span>
-                <span class="text-muted">30</span>
-                <span class="text-muted">31</span>
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
-                <span>6</span>
-                <span>7</span>
-                <span>8</span>
-                <span>9</span>
-                <span>10</span>
-                <span>11</span>
-                <span>12</span>
-                <span>13</span>
-                <span>14</span>
-                <span>15</span>
-                <span>16</span>
-                <span>17</span>
-                <span>18</span>
-                <span>19</span>
-                <span>20</span>
-                <span>21</span>
-                <span>22</span>
-                <span>23</span>
-                <span>24</span>
-                <span>25</span>
-                <span>26</span>
-                <span>27</span>
-                <span>28</span>
-                <span>29</span>
-                <span>30</span>
-                <span>31</span>
-                <span class="text-muted">1</span>
-                <span class="text-muted">2</span>
-                <span class="text-muted">3</span>
-                <span class="text-muted">4</span>
-                <span class="text-muted">5</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        `).join("")}
       </div>
       <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -315,18 +188,6 @@ function createQuestModal(activity) {
       </a>
     </div>
   `
-
-  const scale = new ScaleOfNums({ stylesType: "bootstrap" })
-  scale.createScale(1, 30, "quest-length")
-  scale.appendToParent(questLengthScale)
-
-  aboutActivityModalBS.hide()
-  takeQuestModalBS.show()
-}
-
-function buildMonth(month, year) {
-  let html = ""
-  
 }
 
 function aboutModal(activity) {
