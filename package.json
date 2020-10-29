@@ -16,6 +16,7 @@
     "dotenv": "^8.2.0",
     "gmail-send": "^1.8.10",
     "mongodb": "^3.6.2",
-    "nodemailer": "^6.4.13"
+    "nodemailer": "^6.4.13",
+    "up2require": "^1.1.4"
   }
 }

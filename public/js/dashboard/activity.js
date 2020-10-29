@@ -77,7 +77,7 @@ function createQuestModal(activity) {
       </div>
     </div>
 
-    ${buildCalendars(new Date, 60)}
+    ${buildCalendars(new Date, 1000)}
   `
 
   const scale = new ScaleOfNums({ stylesType: "bootstrap" })
