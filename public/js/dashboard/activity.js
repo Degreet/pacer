@@ -80,12 +80,54 @@ function createQuestModal(activity) {
     ${buildCalendars(new Date, 1000)}
   `
 
+  takeQuestModal.querySelectorAll("[data-toggle='tooltip']")
+    .forEach(el => new bootstrap.Tooltip(el))
+
   const scale = new ScaleOfNums({ stylesType: "bootstrap" })
   scale.createScale(1, 30, "quest-length")
   scale.appendToParent(questLengthScale)
 
   aboutActivityModalBS.hide()
   takeQuestModalBS.show()
+}
+
+function makePlan(schema, length, start) {
+  const date = new Date
+  date.setDate(date.getDate() + start)
+
+  const dates = []
+
+  for (let i = 0; i < length; i++) {
+    dates.push(new Date(date).toISOString().slice(0, 10))
+    date.setDate(date.getDate() + schema)
+  }
+
+  return dates
+}
+
+function toISOLocal(d) {
+  var z = n => ('0' + n).slice(-2)
+  var zz = n => ('00' + n).slice(-3)
+  var off = d.getTimezoneOffset()
+  var sign = off < 0 ? '+' : '-'
+  off = Math.abs(off)
+
+  return d.getFullYear() + '-'
+    + z(d.getMonth() + 1) + '-' +
+    z(d.getDate()) + 'T' +
+    z(d.getHours()) + ':' +
+    z(d.getMinutes()) + ':' +
+    z(d.getSeconds()) + '.' +
+    zz(d.getMilliseconds()) +
+    sign + z(off / 60 | 0) + ':' + z(off % 60)
+}
+
+function showPlan(plan) {
+  const carousel = document.querySelector(".carousel-inner")
+  carousel.querySelectorAll(".custom-badge").forEach(el => el.classList.remove("custom-badge"))
+
+  plan.forEach(date => carousel.querySelector(`[data-date="${date}"]`)
+    .classList.add("custom-badge"))
 }
 
 function buildMonth({ year, month }) {
@@ -120,7 +162,7 @@ function buildMonth({ year, month }) {
 
   return /*html*/`
     <div class="month">
-      <span class="name">${months[month]}</span>
+      <span class="name" data-toggle="tooltip" data-placement="top" title="${year} год">${months[month]}</span>
       <div class="days">
         <span class="text-muted">пн</span>
         <span class="text-muted">вт</span>
@@ -132,7 +174,8 @@ function buildMonth({ year, month }) {
       </div>
       <div class="dates">
         ${prevDates.map(date => `<span class="text-muted">${date}</span>`).join("")}
-        ${dates.map(date => `<span>${date}</span>`).join("")}
+        ${dates.map(date =>
+    `<span data-date="${toISOLocal(new Date(year, month, date)).slice(0, 10)}">${date}</span>`).join("")}
         ${nextDates.map(date => `<span class="text-muted">${date}</span>`).join("")}
       </div>
     </div>

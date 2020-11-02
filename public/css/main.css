@@ -389,6 +389,12 @@ nav ul li a:hover {
   font-size: 14px;
 }
 
+.custom-badge {
+  background: #43d843;
+  border-radius: 1px;
+  box-shadow: 0 0 0 3px #43d843;
+}
+
 .calendar .month .name {
   font-size: 20px;
   margin-bottom: 10px;

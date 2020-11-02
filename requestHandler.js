@@ -403,7 +403,7 @@ function buildEndeavor(endeavor) {
 
 function buildActivity(activity) {
   return /*html*/`
-    <li class="alert alert-primary" data-id="${activity._id.toString()}">
+    <li class="alert alert-primary" style="cursor:pointer" data-id="${activity._id.toString()}">
       <span>${activity.activity}</span>
       <span>${activity.measure}</span>
       <span>
