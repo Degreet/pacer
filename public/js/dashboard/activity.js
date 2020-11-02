@@ -46,12 +46,15 @@ saveActivityBtn.onclick = () => {
 }
 
 function createQuestModal(activity) {
+  const maxLength = Math.floor(confidenceSpan.innerText / activity.hard) + 500
+  const length = Math.floor(maxLength / 2)
+
   takeQuestModal.querySelector(".modal-body").innerHTML = /*html*/`
     <div>Ты решаешь: ${activity.activity}, ${activity.measure} (${schemata[activity.schema - 1]}) столько раз:</div>
     <div id="questLengthScale"></div>
     <div class="mt-3">Залог:
       <span class="badge bg-warning text-dark ml-2 mr-2" style="font-size:16px">36</span>
-      <span class="text-muted">(срок 9 &times; сложность 4)</span>
+      <span class="text-muted">(срок ${length} &times; сложность ${activity.hard})</span>
     </div>
     <div class="d-flex mt-3 justify-content-around">
       <span class="mr-2">Старт квеста</span>
@@ -84,8 +87,13 @@ function createQuestModal(activity) {
     .forEach(el => new bootstrap.Tooltip(el))
 
   const scale = new ScaleOfNums({ stylesType: "bootstrap" })
-  scale.createScale(1, 30, "quest-length")
+  scale.createScale(1, Math.min(maxLength, 37), "quest-length")
   scale.appendToParent(questLengthScale)
+
+  questLengthScale.querySelector(".d-flex").innerHTML += `
+    <input style="width:15%;transform:translate(11px,9px);height:40px"
+      type="number" min="1" max="999" class="form-control" value="${length}">
+  `
 
   aboutActivityModalBS.hide()
   takeQuestModalBS.show()
