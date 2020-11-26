@@ -54,15 +54,15 @@ function createQuestModal(activity) {
     <div>Ты решаешь: ${activity.activity}, ${activity.measure} (${schemata[activity.schema - 1]}) столько раз:</div>
     <div id="questLengthScale"></div>
     <div class="mt-3">Залог:
-      <span class="badge bg-warning text-dark ml-2 mr-2" style="font-size:16px">36</span>
-      <span class="text-muted">(срок ${length} &times; сложность ${activity.hard})</span>
+      <span id="pledge" class="badge bg-warning text-dark ml-2 mr-2" style="font-size:16px">36</span>
+      <span class="text-muted">(срок <span id="lengthCalcSpan">${length}</span> &times; сложность ${activity.hard})</span>
       из: <span class="badge bg-warning text-dark ml-2 mr-2" style="font-size:16px">${confidence}</span>
     </div>
     <div class="d-flex mt-3 justify-content-around">
       <span class="mr-2">Старт квеста</span>
       <div class="d-flex mr-2">
         <div class="form-check mr-3">
-          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+          <input class="form-check-input" type="radio" name="flexRadioDefault" id="todayStartQuest">
           <label class="form-check-label" for="flexRadioDefault1">
             Сегодня
           </label>
@@ -94,9 +94,32 @@ function createQuestModal(activity) {
 
   questLengthScale.querySelector(".d-flex").innerHTML += `
     <input style="width:15%;transform:translate(11px,9px);height:40px"
-      type="number" min="1" max="999" class="form-control" value="${length}">
+      type="number" min="1" max="${maxLength}" id="questLengthInp" class="form-control" value="${length}">
   `
 
+  questLengthScale.querySelectorAll(`label input`).forEach(inp => {
+    inp.onchange = () => {
+      if (inp.checked) {
+        setLength(inp.value)
+      }
+    }
+  })
+
+  questLengthInp.onchange = () => {
+    setLength(+questLengthInp.value)
+  }
+
+  function setLength(length) {
+    length = Math.max(Math.min(length, maxLength), 1)
+    questLengthScale.querySelector(`[type="radio"][name="quest-length"][value="${length}"]`).checked = true
+    questLengthInp.value = length
+    lengthCalcSpan.innerText = length
+    pledge.innerText = length * activity.hard
+    todayStartQuest.disabled = length == 1
+    if (length == 1 && todayStartQuest.checked) todayStartQuest.checked = false
+  }
+
+  setLength(length)
   aboutActivityModalBS.hide()
   takeQuestModalBS.show()
 }
