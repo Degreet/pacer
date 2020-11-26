@@ -62,20 +62,20 @@ function createQuestModal(activity) {
       <span class="mr-2">Старт квеста</span>
       <div class="d-flex mr-2">
         <div class="form-check mr-3">
-          <input class="form-check-input" type="radio" name="flexRadioDefault" id="todayStartQuest">
-          <label class="form-check-label" for="flexRadioDefault1">
+          <input class="form-check-input" value="0" type="radio" name="startDay" id="startDay0">
+          <label class="form-check-label" for="startDay0">
             Сегодня
           </label>
         </div>
         <div class="form-check mr-3">
-          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2">
-          <label class="form-check-label" for="flexRadioDefault2">
+          <input class="form-check-input" value="1" type="radio" name="startDay" id="startDay1">
+          <label class="form-check-label" for="startDay1">
             Завтра
           </label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3">
-          <label class="form-check-label" for="flexRadioDefault3">
+          <input class="form-check-input" value="2" type="radio" name="startDay" id="startDay2">
+          <label class="form-check-label" for="startDay2">
             Послезавтра
           </label>
         </div>
@@ -100,7 +100,7 @@ function createQuestModal(activity) {
   questLengthScale.querySelectorAll(`label input`).forEach(inp => {
     inp.onchange = () => {
       if (inp.checked) {
-        setLength(inp.value)
+        setLength(+inp.value)
       }
     }
   })
@@ -109,14 +109,26 @@ function createQuestModal(activity) {
     setLength(+questLengthInp.value)
   }
 
+  document.querySelectorAll(`[name="startDay"]`).forEach(inp => {
+    inp.onchange = () => {
+      if (inp.checked) {
+        setLength(+questLengthInp.value)
+      }
+    }
+  })
+
   function setLength(length) {
     length = Math.max(Math.min(length, maxLength), 1)
     questLengthScale.querySelector(`[type="radio"][name="quest-length"][value="${length}"]`).checked = true
     questLengthInp.value = length
     lengthCalcSpan.innerText = length
     pledge.innerText = length * activity.hard
-    todayStartQuest.disabled = length == 1
-    if (length == 1 && todayStartQuest.checked) todayStartQuest.checked = false
+    startDay0.disabled = length == 1
+    if (length == 1 && startDay0.checked) startDay0.checked = false
+
+    const startShift = document.querySelector(`[name="startDay"]:checked`)?.value
+    if (startShift === undefined) showPlan()
+    else showPlan(makePlan(activity.schema, length, +startShift))
   }
 
   setLength(length)
@@ -155,7 +167,7 @@ function toISOLocal(d) {
     sign + z(off / 60 | 0) + ':' + z(off % 60)
 }
 
-function showPlan(plan) {
+function showPlan(plan=[]) {
   const carousel = document.querySelector(".carousel-inner")
   carousel.querySelectorAll(".custom-badge").forEach(el => el.classList.remove("custom-badge"))
 
