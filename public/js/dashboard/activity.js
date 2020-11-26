@@ -46,7 +46,8 @@ saveActivityBtn.onclick = () => {
 }
 
 function createQuestModal(activity) {
-  const maxLength = Math.floor(confidenceSpan.innerText / activity.hard) + 500
+  const confidence = +confidenceSpan.innerText
+  const maxLength = Math.floor(confidenceSpan.innerText / activity.hard)
   const length = Math.floor(maxLength / 2)
 
   takeQuestModal.querySelector(".modal-body").innerHTML = /*html*/`
@@ -55,6 +56,7 @@ function createQuestModal(activity) {
     <div class="mt-3">Залог:
       <span class="badge bg-warning text-dark ml-2 mr-2" style="font-size:16px">36</span>
       <span class="text-muted">(срок ${length} &times; сложность ${activity.hard})</span>
+      из: <span class="badge bg-warning text-dark ml-2 mr-2" style="font-size:16px">${confidence}</span>
     </div>
     <div class="d-flex mt-3 justify-content-around">
       <span class="mr-2">Старт квеста</span>
@@ -242,6 +244,8 @@ function buildCalendars(start, length) {
 }
 
 function aboutModal(activity) {
+  const enough = +confidenceSpan.innerText / activity.hard >= 1
+
   aboutActivityModal.querySelector(".modal-body").innerHTML = /*html*/`
     <div>Действие: ${activity.activity}</div>
     <div>Регулярность: ${schemata[activity.schema - 1]}</div>
@@ -252,7 +256,8 @@ function aboutModal(activity) {
   aboutActivityModalTitle.innerText = activity.activity
   aboutActivityModalBS.toggle()
 
-  takeQuestBtn.onclick = () => createQuestModal(activity)
+  takeQuestBtn.innerHTML = enough ? "Взять квест!" : "Не достаточно веры в себя..."
+  takeQuestBtn.onclick = enough ? () => createQuestModal(activity) : null
 }
 
 activityList.onclick = e => {
