@@ -76,7 +76,8 @@ module.exports = async function requestHandler(req, resp) {
       else email = (await getCandidate(cookies)).email
 
       const id = generateToken()
-      const link = `${process.env.PORT ? "https://pacer-js.herokuapp.com" : "http://localhost:3000"}/confirm-change-pass/${id}`
+      const link = `${process.env.PORT
+        ? "https://pacer-js.herokuapp.com" : "http://localhost:3000"}/confirm-change-pass/${id}`
       const candidate = await getCandidateByData({ email })
 
       if (candidate) {

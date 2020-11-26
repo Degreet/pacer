@@ -127,8 +127,13 @@ function createQuestModal(activity) {
     if (length == 1 && startDay0.checked) startDay0.checked = false
 
     const startShift = document.querySelector(`[name="startDay"]:checked`)?.value
-    if (startShift === undefined) showPlan()
-    else showPlan(makePlan(activity.schema, length, +startShift))
+    if (startShift === undefined) {
+      showPlan()
+      saveQuestBtn.disabled = true
+    } else {
+      showPlan(makePlan(activity.schema, length, +startShift))
+      saveQuestBtn.disabled = false
+    }
   }
 
   setLength(length)
